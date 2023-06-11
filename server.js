@@ -1,11 +1,49 @@
-// On importe de package http de Node
 const http = require('http');
-// On importe notre application express
 const app = require('./app');
 
-app.set('port', process.env.PORT || 3000); // On dit à l'application sur quel port elle va tourner
-// On crée un serveur avec la méthode createServer
-const server = http.createServer(app); // On passe l'application express à notre serveur
+const normalizePort = val => {
+  const port = parseInt(val, 10);
 
-// On écoute le serveur sur le port 3000
-server.listen(process.env.PORT || 3000); // On écoute le serveur sur le port 3000 en utilisant la variable d'environnement PORT ou le port 3000 par défaut
+  if (isNaN(port)) {
+    return val;
+  }
+  if (port >= 0) {
+    return port;
+  }
+  return false;
+};
+// On utilise la fonction normalizePort pour renvoyer un port valide, qu'il soit fourni sous la forme d'un numéro ou d'une chaîne de caractères
+const port = normalizePort(process.env.PORT || '3000');
+app.set('port', port);
+
+// La fonction errorHandler  recherche les différentes erreurs et les gère de manière appropriée. Elle est ensuite enregistrée dans le serveur
+const errorHandler = error => {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+  const address = server.address();
+  const bind = typeof address === 'string' ? 'pipe ' + address : 'port: ' + port;
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges.');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use.');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+};
+
+const server = http.createServer(app);
+
+server.on('error', errorHandler);
+server.on('listening', () => {
+  const address = server.address();
+  const bind = typeof address === 'string' ? 'pipe ' + address : 'port ' + port;
+  console.log('Listening on ' + bind);
+});
+
+server.listen(port);
