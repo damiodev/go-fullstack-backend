@@ -6,27 +6,26 @@ const app = express();
 
 // ######   MIDLEWARES (Ensemble de code qui traite les requêtes et réponses de l'application)   ###### //
 
-// 1. Enregistrement "Requête reçue !" dans la console et passe à l'exécution du middleware suivant
-app.use((req, res, next) => { // req contient les informations sur la requête entrante, res permet de renvoyer une réponse, next est une fonction qui permet de passer à l'application suivante
-    console.log('Requête reçue !');
-    next(); // On appelle la fonction next pour passer à l'application suivante
-});
-
-// 2. Enregistrement "Réponse envoyée avec succès !" dans la console et passe à l'exécution du middleware suivant
-app.use((req, res, next) => {
-    res.status(201); // On utilise la méthode status pour préciser le code de statut de la réponse
-    next();
-});
-
-// 3. Enregistrement "Votre requête a bien été reçue !" dans la console et passe à l'exécution du middleware suivant
-app.use((req, res, next) => {
-    res.json({ message: 'Votre requête a bien été reçue !' }); // On utilise la méthode json de la réponse pour renvoyer une réponse au format JSON
-    next();
-});
-
-// 4. Enregistrement "Réponse envoyée avec succès !" dans la console
-app.use((req, res) => {
-    console.log('Réponse envoyée avec succès !'); // On envoie une réponse, donc plus besoin d'appeler la fonction next
+app.use('/api/stuff', (req, res, next) => {
+    const stuff = [
+        {
+            _id: 'oeihfzeoi',
+            title: 'Mon premier objet',
+            description: 'Les infos de mon premier objet',
+            imageUrl: '',
+            price: 4900,
+            userId: 'qsomihvqios',
+        },
+        {
+            _id: 'oeihfzeomoihi',
+            title: 'Mon deuxième objet',
+            description: 'Les infos de mon deuxième objet',
+            imageUrl: '',
+            price: 2900,
+            userId: 'qsomihvqios',
+        },
+    ];
+    res.status(200).json(stuff);
 });
 
 // On exporte l'application pour pouvoir y accéder depuis les autres fichiers du projet
