@@ -5,28 +5,44 @@ const express = require('express');
 const app = express();
 
 // ######   MIDLEWARES (Ensemble de code qui traite les requêtes et réponses de l'application)   ###### //
+app.use(express.json()); // Transforme le corps de la requête en objet JavaScript utilisable
 
-// 1. Enregistrement "Requête reçue !" dans la console et passe à l'exécution du middleware suivant
-app.use((req, res, next) => { // req contient les informations sur la requête entrante, res permet de renvoyer une réponse, next est une fonction qui permet de passer à l'application suivante
-    console.log('Requête reçue !');
-    next(); // On appelle la fonction next pour passer à l'application suivante
-});
-
-// 2. Enregistrement "Réponse envoyée avec succès !" dans la console et passe à l'exécution du middleware suivant
+// Ce middleware permet d'accéder à notre API depuis n'importe quelle origine ( '*' )
 app.use((req, res, next) => {
-    res.status(201); // On utilise la méthode status pour préciser le code de statut de la réponse
+    res.setHeader('Access-Control-Allow-Origin', '*'); // On donne l'accès à toutes les origines
+    res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization'); // On donne l'autorisation d'utiliser certains headers
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS'); // On peut envoyer des requêtes avec les méthodes mentionnées
     next();
 });
 
-// 3. Enregistrement "Votre requête a bien été reçue !" dans la console et passe à l'exécution du middleware suivant
-app.use((req, res, next) => {
-    res.json({ message: 'Votre requête a bien été reçue !' }); // On utilise la méthode json de la réponse pour renvoyer une réponse au format JSON
-    next();
+app.post('/api/stuff', (req, res, next) => {
+    console.log(req.body); // On récupère les données envoyées par le front-end
+    res.status(201).json({ // On utilise la méthode json pour renvoyer une réponse au format JSON
+        message: 'Objet créé !'
+    });
 });
 
-// 4. Enregistrement "Réponse envoyée avec succès !" dans la console
-app.use((req, res) => {
-    console.log('Réponse envoyée avec succès !'); // On envoie une réponse, donc plus besoin d'appeler la fonction next
+// Ce middleware enregistre la fonction json de bodyParser comme middleware global pour l'application. Il transforme le corps de la requête en objet JavaScript utilisable.
+app.get('/api/stuff', (req, res, next) => {
+    const stuff = [
+        {
+            _id: 'oeihfzeoi',
+            title: 'Mon premier objet',
+            description: 'Les infos de mon premier objet',
+            imageUrl: 'https://cdn.pixabay.com/photo/2014/09/12/12/04/eyeglasses-442616_1280.jpg',
+            price: 4900,
+            userId: 'qsomihvqios',
+        },
+        {
+            _id: 'oeihfzeomoihi',
+            title: 'Mon deuxième objet',
+            description: 'Les infos de mon deuxième objet',
+            imageUrl: 'https://cdn.pixabay.com/photo/2015/11/19/21/11/atlas-1052011_1280.jpg',
+            price: 2900,
+            userId: 'qsomihvqios',
+        },
+    ];
+    res.status(200).json(stuff);
 });
 
 // On exporte l'application pour pouvoir y accéder depuis les autres fichiers du projet
