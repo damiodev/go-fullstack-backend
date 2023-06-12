@@ -5,6 +5,8 @@ const express = require('express');
 const app = express();
 
 // ######   MIDLEWARES (Ensemble de code qui traite les requêtes et réponses de l'application)   ###### //
+app.use(express.json()); // Transforme le corps de la requête en objet JavaScript utilisable
+
 // Ce middleware permet d'accéder à notre API depuis n'importe quelle origine ( '*' )
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*'); // On donne l'accès à toutes les origines
@@ -12,8 +14,16 @@ app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS'); // On peut envoyer des requêtes avec les méthodes mentionnées
     next();
 });
+
+app.post('/api/stuff', (req, res, next) => {
+    console.log(req.body); // On récupère les données envoyées par le front-end
+    res.status(201).json({ // On utilise la méthode json pour renvoyer une réponse au format JSON
+        message: 'Objet créé !'
+    });
+});
+
 // Ce middleware enregistre la fonction json de bodyParser comme middleware global pour l'application. Il transforme le corps de la requête en objet JavaScript utilisable.
-app.use('/api/stuff', (req, res, next) => {
+app.get('/api/stuff', (req, res, next) => {
     const stuff = [
         {
             _id: 'oeihfzeoi',
