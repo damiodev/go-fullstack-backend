@@ -1,29 +1,37 @@
-// On importe express
 const express = require('express');
+const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 
-// On crée une application express
+const Thing = require('./models/Thing');
+
+mongoose.connect('mongodb+srv://Damiodev:4nWiwRVzwXcnMTDJ@cluster0.4tiypvy.mongodb.net/?retryWrites=true&w=majority', 
+  { useNewUrlParser: true, 
+    useUnifiedTopology: true })
+  .then(() => console.log('Connexion à MongoDB réussie !'))
+  .catch(() => console.log('Connexion à MongoDB échouée !'));
+
 const app = express();
 
-// ######   MIDLEWARES (Ensemble de code qui traite les requêtes et réponses de l'application)   ###### //
-app.use(express.json()); // Transforme le corps de la requête en objet JavaScript utilisable
-
-// Ce middleware permet d'accéder à notre API depuis n'importe quelle origine ( '*' )
 app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', '*'); // On donne l'accès à toutes les origines
-    res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization'); // On donne l'autorisation d'utiliser certains headers
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS'); // On peut envoyer des requêtes avec les méthodes mentionnées
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
     next();
 });
 
+app.use(bodyParser.json());
+
 app.post('/api/stuff', (req, res, next) => {
-    console.log(req.body); // On récupère les données envoyées par le front-end
-    res.status(201).json({ // On utilise la méthode json pour renvoyer une réponse au format JSON
-        message: 'Objet créé !'
+    delete req.body._id;
+    const thing = new Thing({
+        ...req.body
     });
+    thing.save()
+        .then(() => res.status(201).json({ message: 'Objet enregistré !' }))
+        .catch(error => res.status(400).json({ error }));
 });
 
-// Ce middleware enregistre la fonction json de bodyParser comme middleware global pour l'application. Il transforme le corps de la requête en objet JavaScript utilisable.
-app.get('/api/stuff', (req, res, next) => {
+app.use('/api/stuff', (req, res, next) => {
     const stuff = [
         {
             _id: 'oeihfzeoi',
@@ -45,30 +53,5 @@ app.get('/api/stuff', (req, res, next) => {
     res.status(200).json(stuff);
 });
 
-// On exporte l'application pour pouvoir y accéder depuis les autres fichiers du projet
 module.exports = app;
 
-// ######   MONGODB   ###### //
-const { MongoClient, ServerApiVersion } = require('mongodb');
-const uri = "mongodb+srv://Damiodev:4nWiwRVzwXcnMTDJ@cluster0.4tiypvy.mongodb.net/?retryWrites=true&w=majority";
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  }
-});
-async function run() {
-  try {
-    // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
-    // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
-  } finally {
-    // Ensures that the client will close when you finish/error
-    await client.close();
-  }
-}
-run().catch(console.dir);
