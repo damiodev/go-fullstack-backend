@@ -3,6 +3,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const stuffRoutes = require('./routes/stuff');
+const userRoutes = require('./routes/user');
 // ########## Fin de l'importation des packages ##########
 
 
@@ -35,6 +36,7 @@ app.use((req, res, next) => {
 // ########## Début de la configuration de l'application ##########
 app.use(bodyParser.json());
 app.use('/api/stuff', stuffRoutes);
+app.use('/api/auth', userRoutes);
 // ########## Fin de la configuration de l'application ##########
 
 
